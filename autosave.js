@@ -147,3 +147,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 });
+
+function saveDraft() {
+    console.log('Draft saved!');
+}
+
+window.saveDraft = saveDraft; // Attach to window to make accessible globally
+
