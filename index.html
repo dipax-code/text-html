@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Text to HTML Converter</title>
+    <style>
+      #navbar-iframe {display: none !important;}
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+      body { background-color: #f5f5f5; color: #333; padding: 20px; }
+
+      /* Navigation Bar CSS */ 
+      .site-nav{background-color:#2c3e50;position:sticky;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.1);} 
+      .nav-container{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;padding:0 20px;height:60px;} 
+      .logo a{color:white;font-size:18px;font-weight:700;text-decoration:none;} 
+      .nav-menu{display:flex;list-style:none;margin:0;padding:0;} 
+      .nav-menu li{padding:0 15px;} 
+      .nav-menu li a{color:white;text-decoration:none;font-size:14px;font-weight:500;transition:color 0.3s;} 
+      .nav-menu li a:hover{color:#3498db;} 
+      .menu-toggle{display:none;cursor:pointer;} 
+      .menu-toggle .bar{width:25px;height:3px;background-color:white;margin:5px auto;transition:all 0.3s ease-in-out;display:block;} 
+      @media (max-width:768px){
+        .nav-container{height:50px;} 
+        .menu-toggle{display:block;} 
+        .nav-menu{position:fixed;left:-100%;top:50px;flex-direction:column;background-color:#2c3e50;width:100%;text-align:center;transition:0.3s;box-shadow:0 10px 10px rgba(0,0,0,0.1);} 
+        .nav-menu.active{left:0;} 
+        .nav-menu li{padding:15px 0;} 
+        .nav-menu li a{font-size:16px;} 
+        .menu-toggle.active .bar:nth-child(2){opacity:0;} 
+        .menu-toggle.active .bar:nth-child(1){transform:translateY(8px) rotate(45deg);} 
+        .menu-toggle.active .bar:nth-child(3){transform:translateY(-8px) rotate(-45deg);}} 
+
+
+
+      .container { max-width: 100%; margin: 20px auto; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden; }
+      header { background: #2c3e50; color: white; padding: 20px; text-align: center; }
+      h1 { font-size: 28px; margin-bottom: 5px; } /* Increased from 24px to 28px */
+      .subtitle { font-size: 14px; opacity: 0.8; }
+      .main-content { display: flex; flex-direction: column; padding: 20px; gap: 20px; }
+      .control-panel { background: #f9f9f9; padding: 15px; border-radius: 6px; border: 1px solid #eee; }
+      .control-group { margin-bottom: 10px; display: inline-block; margin-right: 20px; vertical-align: top; }
+      .control-group label { display: block; margin-bottom: 5px; font-weight: 500; color: #2c3e50;}
+      select, button, input { padding: 8px 12px; border-radius: 4px; border: 1px solid #ddd; background: white; font-size: 14px; }
+
+      /* Updated button styles with darker colors */
+      button { background: #000333; color: white; border: none; cursor: pointer; transition: background 0.2s; font-weight: 500; }
+      button:hover { background: #1a2530; }
+      button.secondary { background: #4a5568; }
+      button.secondary:hover { background: #2d3748; }
+
+      /* Side by side layout for text area and preview */
+      .editor-container { display: flex; gap: 20px; }
+      .editor-section { flex: 1; display: flex; flex-direction: column; }
+      textarea { width: 100%; min-height: 300px; border: 1px solid #ddd; border-radius: 4px; padding: 10px; font-family: monospace; resize: vertical; flex-grow: 1; }
+      .preview-section { border: 1px solid #ddd; border-radius: 4px; min-height: 300px; background: white; padding: 10px; overflow: auto; flex-grow: 1; }
+
+      /* HTML output section below */
+      .html-section { width: 100%; margin-top: 20px; }
+
+      .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+      .color-picker { display: flex; align-items: center; gap: 5px; }
+      .color-picker input[type="color"] { width: 30px; height: 30px; padding: 0; border: 1px solid #ddd; }
+      .table-generator { display: flex; gap: 10px; align-items: center; }
+      .table-generator input { width: 60px; }
+      .code-output { background: #f8f8f8; padding: 15px; border-radius: 4px; border: 1px solid #eee; font-family: monospace; white-space: pre-wrap; min-height:300px; max-height: 600px; overflow: auto; }
+      .tab-panel { display: flex; border-bottom: 1px solid #ddd; }
+      .tab { padding: 10px 15px; cursor: pointer; border-bottom: 2px solid transparent; }
+      .tab.active { border-bottom: 2px solid #2c3e50; font-weight: 500; }
+      .tab-content { display: none; }
+      .tab-content.active { display: block; }
+      .notification { position: fixed; bottom: 20px; right: 20px; background: #2ecc71; color: white; padding: 10px 20px; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transform: translateY(100px); opacity: 0; transition: all 0.3s; }
+      .notification.show { transform: translateY(0); opacity: 1; }
+      .dropdown { margin-right: 5px; min-width: 100px; }
+
+      @media (max-width: 768px) { 
+        .editor-container { flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="site-nav">
+      <div class="nav-container">
+        <div class="logo">
+          <a href="https://text-html-converter.blogspot.com/">Text-HTML Converter</a>
+        </div>
+        <div class="menu-toggle" id="mobile-menu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="https://text-html-converter.blogspot.com/">Home</a></li>
+          <li><a href="https://dipax-code.github.io/text-html/about.html">About Us</a></li>
+          <li><a href="https://text-html-converter.blogspot.com/p/privacy-policy.html">Privacy Policy</a></li>
+          <li><a href="https://text-html-converter.blogspot.com/p/terms-conditions.html">Terms & Conditions</a></li>
+          <li><a href="https://text-html-converter.blogspot.com/p/contact-us.html">Contact Us</a></li>
+        </ul>
+      </div>
+    </nav>
+    <div class="container">
+      <header>
+        <h1>Advanced Text to HTML Converter</h1>
+        <div class="subtitle">Transform plain text into professional HTML with ease</div>
+      </header>
+
+      <div class="main-content">
+        <!-- Tools Section (Now at the top) -->
+        <div class="control-panel">
+          <div class="control-group">
+            <label for="formatting">Text Formatting</label>
+            <div class="toolbar">
+              <button id="format-paragraph" title="Paragraph">P</button>
+              <button id="format-bold" title="Bold"><b>B</b></button>
+              <button id="format-italic" title="Italic"><i>I</i></button>
+              <button id="format-underline" title="Underline"><u>U</u></button>
+              <select id="heading-select" class="dropdown">
+                <option value="">Heading</option>
+                <option value="h1">H1</option>
+                <option value="h2">H2</option>
+                <option value="h3">H3</option>
+                <option value="h4">H4</option>
+                <option value="h5">H5</option>
+                <option value="h6">H6</option>
+              </select>
+              <select id="list-select" class="dropdown">
+                <option value="">List</option>
+                <option value="ul">Unordered List</option>
+                <option value="ol">Ordered List</option>
+              </select>
+              <div class="color-picker">
+                <input type="color" id="text-color" value="#000000">
+                <label for="text-color">Color</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label for="table-generator">Table Generator</label>
+            <div class="table-generator">
+              <input type="number" id="table-rows" min="1" max="20" value="3" placeholder="Rows">
+              <input type="number" id="table-cols" min="1" max="10" value="3" placeholder="Columns">
+              <select id="table-style" class="dropdown">
+                <option value="css">With CSS</option>
+                <option value="plain">Without CSS</option>
+              </select>
+              <button id="generate-table">Generate</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Area and Preview Side by Side -->
+        <div class="editor-container">
+          <div class="editor-section">
+            <textarea id="input-text" placeholder="Enter your plain text here..."></textarea>
+          </div>
+
+          <div class="editor-section">
+            <div class="tab-panel">
+              <div class="tab active" data-tab="preview">Preview</div>
+            </div>
+            <div class="tab-content active" id="preview-tab">
+              <div class="preview-section" id="preview-content"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTML Output (Below) -->
+        <div class="html-section">
+          <div class="tab-panel">
+            <div class="tab active" data-tab="html">HTML Code</div>
+          </div>
+          <div class="tab-content active" id="html-tab">
+            <div class="code-output" id="html-output"></div>
+          </div>
+
+          <!-- Buttons below the HTML code area -->
+          <div class="toolbar">
+            <button id="copy-html">Copy HTML</button>
+            <button id="clear-all" class="secondary">Clear All</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="notification" id="notification">Copied to clipboard!</div>
+
+    <!--navbar-->
+    <script>
+      // Mobile Menu Toggle
+      document.addEventListener('DOMContentLoaded', function() {
+        const menuToggle = document.getElementById('mobile-menu');
+        const navMenu = document.querySelector('.nav-menu');
+
+        menuToggle.addEventListener('click', function() {
+          menuToggle.classList.toggle('active');
+          navMenu.classList.toggle('active');
+        });
+
+        // Close menu when a link is clicked
+        const navLinks = document.querySelectorAll('.nav-menu a');
+        navLinks.forEach(link => {
+          link.addEventListener('click', function() {
+            menuToggle.classList.remove('active');
+            navMenu.classList.remove('active');
+          });
+        });
+      });
+    </script>
+    <!--bascis-->
+    <script>
+      // DOM Elements
+      const inputText = document.getElementById('input-text');
+      const previewContent = document.getElementById('preview-content');
+      const htmlOutput = document.getElementById('html-output');
+      const formatBold = document.getElementById('format-bold');
+      const formatItalic = document.getElementById('format-italic');
+      const formatUnderline = document.getElementById('format-underline');
+      const headingSelect = document.getElementById('heading-select');
+      const listSelect = document.getElementById('list-select');
+      const formatParagraph = document.getElementById('format-paragraph');
+      const textColor = document.getElementById('text-color');
+      const tableRows = document.getElementById('table-rows');
+      const tableCols = document.getElementById('table-cols');
+      const tableStyle = document.getElementById('table-style');
+      const generateTable = document.getElementById('generate-table');
+      const copyHtml = document.getElementById('copy-html');
+      const clearAll = document.getElementById('clear-all');
+      const notification = document.getElementById('notification');
+
+      // Initialize
+      updatePreview();
+
+      // Event Listeners
+      inputText.addEventListener('input', updatePreview);
+      formatBold.addEventListener('click', () => insertTag('b'));
+      formatItalic.addEventListener('click', () => insertTag('i'));
+      formatUnderline.addEventListener('click', () => insertTag('u'));
+      headingSelect.addEventListener('change', function() {
+        if (this.value) {
+          insertTag(this.value);
+          this.value = ''; // Reset dropdown
+        }
+      });
+      listSelect.addEventListener('change', function() {
+        if (this.value) {
+          createList(this.value);
+          this.value = ''; // Reset dropdown
+        }
+      });
+      formatParagraph.addEventListener('click', () => insertTag('p'));
+      textColor.addEventListener('change', applyTextColor);
+      generateTable.addEventListener('click', createTable);
+      copyHtml.addEventListener('click', copyHtmlToClipboard);
+      clearAll.addEventListener('click', clearContent);
+
+      // Functions
+      function updatePreview() {
+        if (!inputText.value.trim()) {
+          previewContent.innerHTML = '';
+          htmlOutput.textContent = '';
+          return;
+        }
+
+        // Convert line breaks to paragraphs if no HTML tags present
+        let html = inputText.value;
+        if (!/<[a-z][\s\S]*>/i.test(html)) {
+          html = '<p>' + html.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+        }
+
+        previewContent.innerHTML = html;
+        htmlOutput.textContent = html;
+      }
+
+      function getSelectedText() {
+        const start = inputText.selectionStart;
+        const end = inputText.selectionEnd;
+        return {
+          text: inputText.value.substring(start, end),
+          start,
+          end
+        };
+      }
+
+      function insertAtCursor(textToInsert) {
+        const cursorPos = inputText.selectionStart;
+        const textBefore = inputText.value.substring(0, cursorPos);
+        const textAfter = inputText.value.substring(inputText.selectionEnd);
+
+        inputText.value = textBefore + textToInsert + textAfter;
+        inputText.focus();
+        inputText.selectionStart = cursorPos + textToInsert.length;
+        inputText.selectionEnd = cursorPos + textToInsert.length;
+
+        updatePreview();
+      }
+
+      function insertTag(tag) {
+        const selection = getSelectedText();
+        if (selection.text) {
+          const newText = `<${tag}>${selection.text}</${tag}>`;
+          const textBefore = inputText.value.substring(0, selection.start);
+          const textAfter = inputText.value.substring(selection.end);
+
+          inputText.value = textBefore + newText + textAfter;
+          inputText.focus();
+          inputText.selectionStart = selection.start + newText.length;
+          inputText.selectionEnd = selection.start + newText.length;
+        } else {
+          insertAtCursor(`<${tag}></${tag}>`);
+          const cursorPos = inputText.selectionStart;
+          inputText.selectionStart = cursorPos - `</${tag}>`.length;
+          inputText.selectionEnd = cursorPos - `</${tag}>`.length;
+        }
+
+        updatePreview();
+      }
+
+      function applyTextColor() {
+        const selection = getSelectedText();
+        if (selection.text) {
+          const color = textColor.value;
+          const newText = `<span style="color:${color}">${selection.text}</span>`;
+          const textBefore = inputText.value.substring(0, selection.start);
+          const textAfter = inputText.value.substring(selection.end);
+
+          inputText.value = textBefore + newText + textAfter;
+          inputText.focus();
+          inputText.selectionStart = selection.start + newText.length;
+          inputText.selectionEnd = selection.start + newText.length;
+
+          updatePreview();
+        } else {
+          showNotification('Select text first to apply color', 'error');
+        }
+      }
+
+      function createList(listType = 'ul') {
+        const selection = getSelectedText();
+        let listItems;
+
+        if (selection.text) {
+          // Try to create a list from selected text
+          listItems = selection.text.split('\n').filter(item => item.trim() !== '');
+        } else {
+          // Create a sample list
+          listItems = ['Item 1', 'Item 2', 'Item 3'];
+        }
+
+        let listHtml = `<${listType}>\n`;
+        listItems.forEach(item => {
+          listHtml += `  <li>${item}</li>\n`;
+        });
+        listHtml += `</${listType}>`;
+
+        if (selection.text) {
+          const textBefore = inputText.value.substring(0, selection.start);
+          const textAfter = inputText.value.substring(selection.end);
+
+          inputText.value = textBefore + listHtml + textAfter;
+        } else {
+          insertAtCursor(listHtml);
+        }
+
+        updatePreview();
+      }
+
+      function createTable() {
+        const rows = parseInt(tableRows.value) || 3;
+        const cols = parseInt(tableCols.value) || 3;
+        const styleType = tableStyle.value;
+
+        if (rows > 20 || cols > 10) {
+          showNotification('Table size is too large', 'error');
+          return;
+        }
+
+        let tableHtml = styleType === 'css'
+        ? '<table border="1" style="border-collapse: collapse; width: 100%;">\n'
+        : '<table border="1">\n';
+
+        // Table header
+        tableHtml += '  <thead>\n    <tr>\n';
+        for (let j = 0; j < cols; j++) {
+          tableHtml += styleType === 'css'
+            ? `      <th style="padding: 8px; text-align: left; background-color: #f2f2f2;">Header ${j+1}</th>\n`
+          : `      <th>Header ${j+1}</th>\n`;
+        }
+        tableHtml += '    </tr>\n  </thead>\n';
+
+        // Table body
+        tableHtml += '  <tbody>\n';
+        for (let i = 0; i < rows-1; i++) {
+          tableHtml += '    <tr>\n';
+          for (let j = 0; j < cols; j++) {
+            tableHtml += styleType === 'css'
+              ? `      <td style="padding: 8px; border: 1px solid #ddd;">Row ${i+1}, Col ${j+1}</td>\n`
+            : `      <td>Row ${i+1}, Col ${j+1}</td>\n`;
+          }
+          tableHtml += '    </tr>\n';
+        }
+        tableHtml += '  </tbody>\n</table>';
+
+        insertAtCursor(tableHtml);
+      }
+
+      function copyHtmlToClipboard() {
+        const htmlCode = htmlOutput.textContent;
+        if (!htmlCode) {
+          showNotification('No HTML to copy', 'error');
+          return;
+        }
+
+        navigator.clipboard.writeText(htmlCode)
+          .then(() => {
+          showNotification('HTML copied to clipboard!');
+        })
+          .catch(err => {
+          showNotification('Failed to copy HTML', 'error');
+          console.error('Copy failed: ', err);
+        });
+      }
+
+      function clearContent() {
+        inputText.value = '';
+        updatePreview();
+        showNotification('Content cleared');
+      }
+
+      function showNotification(message, type = 'success') {
+        notification.textContent = message;
+        notification.style.background = type === 'success' ? '#2ecc71' : '#e74c3c';
+        notification.classList.add('show');
+
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 3000);
+      }
+    </script>
+
+    <!--specia text-format-->
+    <script>
+
+
+      // Add the text formatting dropdown to the toolbar
+      document.querySelector('.toolbar:first-of-type').insertAdjacentHTML('beforeend', `
+  <select id="text-format-select" class="dropdown">
+    <option value="">Special Formatting</option>
+    <option value="mark">Mark (Highlight)</option>
+    <option value="strong">Strong</option>
+    <option value="em">Emphasis</option>
+    <option value="blockquote">Blockquote</option>
+    <option value="abbr">Abbreviation</option>
+    <option value="cite">Citation</option>
+    <option value="time">Time</option>
+      </select>
+`);
+
+      // Initialize the dropdown reference
+      const textFormatSelect = document.getElementById('text-format-select');
+
+      // Add event listener to the dropdown
+      textFormatSelect.addEventListener('change', function() {
+        if (this.value) {
+          applyTextFormatting(this.value);
+          this.value = ''; // Reset dropdown after selection
+          saveState(); // Add to undo stack
+        }
+      });
+
+      //Apply text formatting based on the selected tag
+      // @param {string} formatType - The type of formatting to apply
+      function applyTextFormatting(formatType) {
+        const selection = getSelectedText();
+        const hasSelection = selection.text.trim().length > 0;
+
+        switch(formatType) {
+          case 'mark':
+            insertTag('mark');
+            break;
+
+          case 'strong':
+            insertTag('strong');
+            break;
+
+          case 'em':
+            insertTag('em');
+            break;
+
+          case 'blockquote':
+            insertBlockquote();
+            break;
+
+          case 'abbr':
+            insertAbbreviation();
+            break;
+
+          case 'cite':
+            insertTag('cite');
+            break;
+
+          case 'time':
+            insertTimeElement();
+            break;
+        }
+      }
+
+      // Insert a blockquote element
+
+      function insertBlockquote() {
+        const selection = getSelectedText();
+        const content = selection.text.trim();
+        let newText;
+
+        if (content) {
+          // Add proper indentation for blockquote content
+          const contentLines = content.split('\n');
+          const indentedContent = contentLines.map(line => '  ' + line).join('\n');
+
+          newText = `<blockquote>\n${indentedContent}\n</blockquote>`;
+        } else {
+          // Create empty blockquote with placeholder
+          newText = `<blockquote>\n  Quote goes here\n</blockquote>`;
+        }
+
+        // Replace the selected text with the new blockquote
+        const textBefore = inputText.value.substring(0, selection.start);
+        const textAfter = inputText.value.substring(selection.end);
+
+        inputText.value = textBefore + newText + textAfter;
+        inputText.focus();
+
+        // Place cursor inside the blockquote if there was no selection
+        if (!content) {
+          const cursorPosition = selection.start + '<blockquote>\n  '.length;
+          inputText.selectionStart = cursorPosition;
+          inputText.selectionEnd = cursorPosition + "Quote goes here".length;
+        }
+
+        updatePreview();
+      }
+
+      // Insert an abbreviation element with title attribute
+
+      function insertAbbreviation() {
+        const selection = getSelectedText();
+        const selectedText = selection.text.trim();
+
+        if (selectedText) {
+          // If text is selected, prompt for the full form
+          const fullForm = prompt('Enter the full form of the abbreviation:', '');
+          if (fullForm === null) return; // User canceled
+
+          const newText = `<abbr title="${fullForm}">${selectedText}</abbr>`;
+
+          // Replace the selected text with the abbr element
+          const textBefore = inputText.value.substring(0, selection.start);
+          const textAfter = inputText.value.substring(selection.end);
+
+          inputText.value = textBefore + newText + textAfter;
+        } else {
+          // If no text is selected, create a sample abbreviation
+          const abbr = prompt('Enter the abbreviation:', 'HTML');
+          if (abbr === null) return; // User canceled
+
+          const fullForm = prompt('Enter the full form:', 'Hypertext Markup Language');
+          if (fullForm === null) return; // User canceled
+
+          const newText = `<abbr title="${fullForm}">${abbr}</abbr>`;
+          insertAtCursor(newText);
+        }
+
+        updatePreview();
+      }
+
+      // Insert a time element with datetime attribute
+
+      function insertTimeElement() {
+        const selection = getSelectedText();
+        const selectedText = selection.text.trim();
+
+        if (selectedText) {
+          // If text is selected, prompt for the machine-readable datetime
+          const datetime = prompt('Enter ISO datetime (e.g., 2023-03-25T12:00:00):', 
+                                  new Date().toISOString().slice(0, 16));
+          if (datetime === null) return; // User canceled
+
+          const newText = `<time datetime="${datetime}">${selectedText}</time>`;
+
+          // Replace the selected text with the time element
+          const textBefore = inputText.value.substring(0, selection.start);
+          const textAfter = inputText.value.substring(selection.end);
+
+          inputText.value = textBefore + newText + textAfter;
+        } else {
+          // If no text is selected, use current date/time as an example
+          const now = new Date();
+          const readableTime = now.toLocaleString();
+          const machineTime = now.toISOString();
+
+          const newText = `<time datetime="${machineTime}">${readableTime}</time>`;
+          insertAtCursor(newText);
+        }
+
+        updatePreview();
+      }
+
+
+    </script>
+
+    <!--hr-br-->
+    <script>
+      // First script: Line break and horizontal rule functionalities
+
+      // Add new buttons to the toolbar
+      document.querySelector('.toolbar:first-of-type').insertAdjacentHTML('beforeend', `
+  <button id="insert-break" title="Line Break">↵</button>
+  <button id="insert-hr" title="Horizontal Rule">—</button>
+`);
+
+      // Initialize buttons
+      const insertBreakButton = document.getElementById('insert-break');
+      const insertHrButton = document.getElementById('insert-hr');
+
+      // Line Break functionality
+      insertBreakButton.addEventListener('click', function() {
+        saveState(); // Save current state for undo/redo
+        insertAtCursor('<br>');
+        updatePreview();
+      });
+
+      // Horizontal Rule functionality
+      insertHrButton.addEventListener('click', function() {
+        saveState(); // Save current state for undo/redo
+        insertAtCursor('<hr>');
+        updatePreview();
+      });
+
+      // Add keyboard shortcuts
+      document.addEventListener('keydown', function(e) {
+        // Ctrl+Shift+B - Insert Break
+        if (e.ctrlKey && e.shiftKey && e.key === 'B') {
+          e.preventDefault();
+          insertBreakButton.click();
+        }
+        // Ctrl+Shift+H - Insert Horizontal Rule
+        else if (e.ctrlKey && e.shiftKey && e.key === 'H') {
+          e.preventDefault();
+          insertHrButton.click();
+        }
+      });
+
+      // Add event listeners to make sure state is saved before using the buttons
+      [insertBreakButton, insertHrButton].forEach(button => {
+        button.addEventListener('click', function() {
+          saveState();
+        });
+      });
+
+    </script>
+
+
+    <!--undo-redo-sub-superscript-id-class-->
+    <script>
+      // 1. Undo/Redo functionality with keyboard shortcuts
+      const undoStack = [];
+      const redoStack = [];
+      let isUndoRedoAction = false;
+
+      // Add undo/redo buttons to toolbar
+      document.querySelector('.toolbar:first-of-type').insertAdjacentHTML('beforeend', `
+        <button id="undo-button" title="Undo (Ctrl+Z)">↩</button>
+        <button id="redo-button" title="Redo (Ctrl+Y)">↪</button>
+      `);
+
+      // Initialize buttons
+      const undoButton = document.getElementById('undo-button');
+      const redoButton = document.getElementById('redo-button');
+
+      // Disable buttons initially
+      undoButton.disabled = true;
+      redoButton.disabled = true;
+
+      // Save current state function
+      function saveState() {
+        if (isUndoRedoAction) return;
+
+        // Push current text to undo stack
+        undoStack.push(inputText.value);
+        // Clear redo stack when new changes are made
+        redoStack.length = 0;
+
+        // Update button states
+        undoButton.disabled = false;
+        redoButton.disabled = true;
+      }
+
+      // Handle input changes to save state
+      inputText.addEventListener('input', function(e) {
+        if (!isUndoRedoAction) {
+          saveState();
+        }
+        updatePreview();
+      });
+
+      // Undo function
+      function performUndo() {
+        if (undoStack.length === 0) return;
+
+        isUndoRedoAction = true;
+
+        // Save current state to redo stack
+        redoStack.push(inputText.value);
+
+        // Pop state from undo stack
+        const previousState = undoStack.pop();
+        inputText.value = previousState;
+
+        // Update button states
+        undoButton.disabled = undoStack.length === 0;
+        redoButton.disabled = false;
+
+        updatePreview();
+        isUndoRedoAction = false;
+      }
+
+      // Redo function
+      function performRedo() {
+        if (redoStack.length === 0) return;
+
+        isUndoRedoAction = true;
+
+        // Save current state to undo stack
+        undoStack.push(inputText.value);
+
+        // Pop state from redo stack
+        const nextState = redoStack.pop();
+        inputText.value = nextState;
+
+        // Update button states
+        undoButton.disabled = false;
+        redoButton.disabled = redoStack.length === 0;
+
+        updatePreview();
+        isUndoRedoAction = false;
+      }
+
+      // Add keyboard shortcuts
+      document.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'z') {
+          e.preventDefault();
+          performUndo();
+        } else if (e.ctrlKey && e.key === 'y') {
+          e.preventDefault();
+          performRedo();
+        }
+      });
+
+      // Add button event listeners
+      undoButton.addEventListener('click', performUndo);
+      redoButton.addEventListener('click', performRedo);
+
+      // Init state for newly added elements
+      document.querySelectorAll('.toolbar button:not(#undo-button):not(#redo-button), .table-generator button')
+        .forEach(btn => {
+        btn.addEventListener('click', saveState);
+      });
+
+      // 2. Insert Link Functionality
+      // ---------------------------
+      document.querySelector('.toolbar:first-of-type').insertAdjacentHTML('beforeend', `
+        <button id="insert-link" title="Insert Link">🔗</button>
+      `);
+
+      const insertLinkButton = document.getElementById('insert-link');
+
+      insertLinkButton.addEventListener('click', function() {
+        const selection = getSelectedText();
+
+        if (!selection.text) {
+          showNotification('Select text first to create a link', 'error');
+          return;
+        }
+
+        const url = prompt('Enter URL:', 'https://');
+        if (!url) return;
+
+        saveState();
+
+        const linkTag = `<a href="${url}" target="_blank">${selection.text}</a>`;
+        const textBefore = inputText.value.substring(0, selection.start);
+        const textAfter = inputText.value.substring(selection.end);
+
+        inputText.value = textBefore + linkTag + textAfter;
+        inputText.focus();
+        updatePreview();
+      });
+
+      // 3. Subscript and Superscript Functionality
+      // -----------------------------------------
+      document.querySelector('.toolbar:first-of-type').insertAdjacentHTML('beforeend', `
+        <button id="format-subscript" title="Subscript">x₂</button>
+        <button id="format-superscript" title="Superscript">x²</button>
+      `);
+
+      const formatSubscript = document.getElementById('format-subscript');
+      const formatSuperscript = document.getElementById('format-superscript');
+
+      formatSubscript.addEventListener('click', () => insertTag('sub'));
+      formatSuperscript.addEventListener('click', () => insertTag('sup'));
+
+      // 4. Add Identifiers (Class/ID) Functionality
+      // ------------------------------------------
+      document.querySelector('.toolbar:first-of-type').insertAdjacentHTML('beforeend', `
+        <button id="add-identifier" title="Add Class/ID">ID/Class</button>
+      `);
+
+      const addIdentifierButton = document.getElementById('add-identifier');
+
+      addIdentifierButton.addEventListener('click', function() {
+        // First check if there's a tag at the cursor position
+        const cursorPos = inputText.selectionStart;
+        const textBefore = inputText.value.substring(0, cursorPos);
+
+        // Try to find the last opening tag before cursor
+        const lastTagPos = textBefore.lastIndexOf('<');
+        if (lastTagPos === -1) {
+          showNotification('Position cursor inside or right after an HTML tag', 'error');
+          return;
+        }
+
+        // Extract tag portion
+        const potentialTag = inputText.value.substring(lastTagPos);
+        const tagEndPos = potentialTag.indexOf('>');
+        if (tagEndPos === -1) {
+          showNotification('No valid HTML tag found', 'error');
+          return;
+        }
+
+        const tagContent = potentialTag.substring(0, tagEndPos);
+        if (tagContent.includes('/')) {
+          showNotification('Cannot add identifiers to closing tags', 'error');
+          return;
+        }
+
+        // Prompt for class or ID
+        const identifierType = prompt('Enter identifier type (class or id):', 'class');
+        if (!identifierType || (identifierType !== 'class' && identifierType !== 'id')) {
+          return;
+        }
+
+        const identifierValue = prompt(`Enter ${identifierType} value:`, identifierType === 'class' ? 'my-class' : 'my-id');
+        if (!identifierValue) return;
+
+        saveState();
+
+        // Insert the identifier before the closing angle bracket
+        const absoluteTagEndPos = lastTagPos + tagEndPos;
+        const modifiedTag = tagContent + ` ${identifierType}="${identifierValue}"`;
+
+        const textBeforeTag = inputText.value.substring(0, lastTagPos);
+        const textAfterTag = inputText.value.substring(absoluteTagEndPos);
+
+        inputText.value = textBeforeTag + modifiedTag + textAfterTag;
+        updatePreview();
+      });
+
+    </script>
+
+    <script defer src="https://cdn.jsdelivr.net/gh/dipax-code/text-html@main/structural-tags.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/dipax-code/text-html@main/multimedia.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/dipax-code/text-html@main/web-structure.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/dipax-code/text-html@main/autosave.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/dipax-code/text-html@main/code-syntax.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/dipax-code/text-html@main/save&load-draft.js"></script>
+
+
+
+  </body>
+</html>
