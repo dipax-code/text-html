@@ -3,7 +3,7 @@
 // Add the text formatting dropdown to the toolbar
 document.querySelector('.toolbar:first-of-type').insertAdjacentHTML('beforeend', `
   <select id="text-format-select" class="dropdown">
-    <option value="">Special Format</option>
+    <option value="">Special Text Formatting</option>
     <option value="mark">Mark (Highlight)</option>
     <option value="strong">Strong</option>
     <option value="em">Emphasis</option>
