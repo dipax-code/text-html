@@ -2,10 +2,10 @@
       
 // Add new structure tag buttons to the toolbar
 document.querySelector('.toolbar:first-of-type').insertAdjacentHTML('beforeend', `
-  <button id="insert-div" title="Insert Div">DIV</button>
-  <button id="insert-article" title="Insert Article">ARTICLE</button>
-  <button id="insert-section" title="Insert Section">SECTION</button>
-  <button id="insert-details" title="Insert Details with Summary">DETAILS</button>
+  <button id="insert-div" title="Insert Div">div</button>
+  <button id="insert-article" title="Insert Article">article</button>
+  <button id="insert-section" title="Insert Section">section</button>
+  <button id="insert-details" title="Insert Details with Summary">details</button>
 `);
 
 // Initialize button references
