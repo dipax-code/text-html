@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Text to HTML Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: #fff;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        
+        nav {
+            background-color: #34495e;
+            padding: 10px 0;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+        
+        nav ul li {
+            margin: 0 15px;
+        }
+        
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: #3498db;
+        }
+        
+        .contact-form {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        .success-message {
+            display: none;
+            background-color: #dff0d8;
+            color: #3c763d;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Text to HTML Converter</h1>
+            <p>Convert your plain text to clean HTML code instantly</p>
+        </div>
+    </header>
+    
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="converter.html">Converter</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <section>
+            <h2>Contact Us</h2>
+            <p>Have questions, suggestions, or experiencing issues with our converter? We'd love to hear from you! Fill out the form below and we'll get back to you as soon as possible.</p>
+            
+            <div class="success-message" id="successMessage">
+                Thank you for your message! We will get back to you soon.
+            </div>
+            
+            <div class="contact-form">
+                <form id="contactForm" action="https://formsubmit.co/dipax75@gmail.com" method="POST">
+                    <!-- FormSubmit.co configuration -->
+                    <input type="hidden" name="_subject" value="New message from Text to HTML Converter">
+                    <input type="hidden" name="_template" value="table">
+                    <input type="hidden" name="_next" value="https://text-html-converter.blogspot.com/thank-you">
+                    
+                    <div class="form-group">
+                        <label for="name">Name <span class="required">*</span></label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject <span class="required">*</span></label>
+                        <input type="text" id="subject" name="subject" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message <span class="required">*</span></label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+        
+<!--        <section>
+            <h3>Other Ways to Reach Us</h3>
+            <p>You can also reach us directly through the following channel:</p>
+            <ul>
+                <li>Email: <a href="mailto:dipax75@gmail.com">dipax75@gmail.com</a></li>
+            </ul>
+        </section>-->
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Text to HTML Converter. All rights reserved.</p>
+            <p><a href="privacy.html">Privacy Policy</a> | <a href="terms.html">Terms of Service</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // Check if this is a thank you page redirect
+        if (window.location.href.indexOf('thank-you') > -1) {
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('contactForm').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
